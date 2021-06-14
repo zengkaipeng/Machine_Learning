@@ -1,45 +1,35 @@
+import math
 import numpy as np
+from tqdm import tqdm
 
 
-def Binary_LDA(features, labels):
-    dim = len(features[0])
-    sumin = np.zeros(dim)
-    sumout = np.zeros(dim)
-    Sigmain = np.zeros((dim, dim))
-    Sigmaout = np.zeros((dim, dim))
-    within, outside = 0, 0
-    for i, fea in enumerate(features):
-        if labels[i] == 1:
-            sumin += fea
-            within += 1
-        else:
-            sumout += fea
-            outside += 1
+def Binary_LDA(features, labels, verbose=True):
+    totlen = len(features)
+    Xin = np.array([features[i] for i in range(totlen) if labels[i] == 1])
+    Xout = np.array([features[i] for i in range(totlen) if labels[i] != 1])
+    muplus = np.mean(Xin, axis=0)
+    muneg = np.mean(Xout, axis=0)
 
-    muplus = sumin / within
-    muneg = sumout / outside
+    if verbose:
+        print('[INFO] MEANS DONE')
+    within, outside = len(Xin), len(Xout)
 
-    mugap = muplus - muneg
-    SB = np.matmul(mugap.reshape(-1, 1), mugap)
-    for i, fea in enumerate(features):
-        if labels[i] == 1:
-            vecgap = fea - muplus
-            Sigmain += np.matmul(vecgap.reshape(-1, 1), vecgap)
-        else:
-            vecgap = fea - muneg
-            Sigmaout += np.matmul(vecgap.reshape(-1, 1), vecgap)
+    Sigmain = np.matmul((Xin - muplus).T, Xin - muplus)
+    Sigmaout = np.matmul((Xout - muneg).T, Xout - muneg)
 
-    """
-    Sigmain = Sigmain / within
-    Sigmaout = Sigmaout / outside
-    """
+    if verbose:
+        print('[INFO] SIGMA DONE')
+
     SW = Sigmaout + Sigmain
-    SW_inv = np.linalg.inv(SW)
-    SWSB = np.matmul(SW_inv, SB)
-    engval, engvec = np.linalg.eig(SWSB)
-    pos = np.argmax(engval)
-    beta = engvec[:, pos]
+    SWinv = np.linalg.inv(SW)
+    beta = np.matmul(SWinv, (muplus - muneg).reshape(-1, 1))
     return beta
+
+
+def CalMu_Sigma(Array):
+    Mu = np.mean(Array)
+    Gx = np.mean((Array - Mu) ** 2)
+    return Mu, Gx
 
 
 if __name__ == '__main__':
@@ -55,7 +45,35 @@ if __name__ == '__main__':
 
     Lab2beta = {}
     for x in range(10):
-        new_labels = np.zeros(len(train_features[0]))
+        new_labels = np.zeros(len(train_features))
         new_labels[train_labels == x] = 1
         beta = Binary_LDA(train_features, new_labels)
-        
+        Lab2beta[x] = beta
+
+    Probs, Labs = [], []
+    for k, v in Lab2beta.items():
+        Projection = np.matmul(test_features, v).reshape(1, -1)[0]
+        print(Projection.shape)
+        Mu, Gx = CalMu_Sigma(Projection)
+        print(Mu.shape, Gx.shape)
+        Sigma = np.sqrt(Gx)
+        Prob = 1 / (np.sqrt(2 * math.pi) * Sigma) * np.exp(
+            -(Projection - Mu) * (Projection - Mu) / (2 * Gx)
+        )
+        Probs.append(Prob)
+        Labs.append(k)
+
+    Poses = Probs.argmax(axis=0)
+    Predicts = np.array([Labs[x] for x in Poses])
+    Corr = np.sum(Predicts == test_labels)
+
+    print(Corr / len(test_features))
+
+    if not os.path.exists('result'):
+        os.mkdir('result')
+
+    if not os.path.exists('result/LDA'):
+        os.mkdir('result/LDA')
+
+    with open('result/LDA/betas.pkl', 'wb') as Fout:
+        pickle.dump(Lab2beta, Fout)
