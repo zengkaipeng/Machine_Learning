@@ -17,7 +17,7 @@ if __name__ == '__main__':
     train_labels = np.concatenate([train_labels, extra_labels])
 
     train_features_u, train_labels_u = Random_Sample(
-        train_features, train_labels, num=20000
+        train_features, train_labels, num=30000
     )
 
     print('load Done')

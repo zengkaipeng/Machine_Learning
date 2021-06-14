@@ -31,14 +31,14 @@ def train(
             Subx = train_features[Idx: Idx + batch_size]
             Y = train_labels[Idx: Idx + batch_size]
             grad = Grad(Subx, beta, Y)
-            """
+            
             vt = gam1 * vt + (1 - gam1) * grad
-            Gt = gam2 * Gt + (1 - 2) * (grad * grad)
-            vth = vt / (1 - gam1)
-            Gth = Gt / (1 - gam2)
+            Gt = gam2 * Gt + (1 - gam2) * (grad * grad)
+            vth = vt / (1 - gam1 ** (ep + 1))
+            Gth = Gt / (1 - gam2 ** (ep + 1))
             beta -= lr * (vth / np.sqrt(Gth + 1e-8))
-            """
-            beta -= lr * grad
+            
+            # beta -= lr * grad
             loss += Loss(Subx, beta, Y)
 
         if verbose and ep % 50 == 0:

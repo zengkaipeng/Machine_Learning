@@ -1,6 +1,8 @@
 import math
 import numpy as np
 from tqdm import tqdm
+import os
+import pickle
 
 
 def Binary_LDA(features, labels, verbose=True):
@@ -12,7 +14,6 @@ def Binary_LDA(features, labels, verbose=True):
 
     if verbose:
         print('[INFO] MEANS DONE')
-    within, outside = len(Xin), len(Xout)
 
     Sigmain = np.matmul((Xin - muplus).T, Xin - muplus)
     Sigmaout = np.matmul((Xout - muneg).T, Xout - muneg)
@@ -22,7 +23,7 @@ def Binary_LDA(features, labels, verbose=True):
 
     SW = Sigmaout + Sigmain
     SWinv = np.linalg.inv(SW)
-    beta = np.matmul(SWinv, (muplus - muneg).reshape(-1, 1))
+    beta = np.dot(SWinv, (muplus - muneg))
     return beta
 
 
@@ -50,24 +51,23 @@ if __name__ == '__main__':
         beta = Binary_LDA(train_features, new_labels)
         Lab2beta[x] = beta
 
-    Probs, Labs = [], []
-    for k, v in Lab2beta.items():
-        Projection = np.matmul(test_features, v).reshape(1, -1)[0]
-        print(Projection.shape)
+    Lab2Info = {}
+    for x in range(10):
+        Xpos = train_features[train_labels == x]
+        Projection = np.dot(Xpos, Lab2beta[x])
         Mu, Gx = CalMu_Sigma(Projection)
-        print(Mu.shape, Gx.shape)
-        Sigma = np.sqrt(Gx)
-        Prob = 1 / (np.sqrt(2 * math.pi) * Sigma) * np.exp(
-            -(Projection - Mu) * (Projection - Mu) / (2 * Gx)
+        Lab2Info[x] = (Mu, Gx)
+
+    Probs, Labs = [], []
+    for x in range(10):
+        Projection = np.dot(test_features, Lab2beta[x])
+        Mu, Gx = Lab2Info[x]
+        sigma = np.sqrt(Gx)
+        Prob = 1 / (np.sqrt(2 * math.pi) * sigma) * np.exp(
+            - (Projection - Mu) * (Projection - Mu) / (2 * Gx)
         )
         Probs.append(Prob)
-        Labs.append(k)
-
-    Poses = Probs.argmax(axis=0)
-    Predicts = np.array([Labs[x] for x in Poses])
-    Corr = np.sum(Predicts == test_labels)
-
-    print(Corr / len(test_features))
+        
 
     if not os.path.exists('result'):
         os.mkdir('result')
