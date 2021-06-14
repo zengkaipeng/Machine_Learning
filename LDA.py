@@ -67,7 +67,15 @@ if __name__ == '__main__':
             - (Projection - Mu) * (Projection - Mu) / (2 * Gx)
         )
         Probs.append(Prob)
-        
+        Labs.append(x)
+
+    Probs = np.array(Probs)
+    Predict = Probs.argmax(axis=0)
+    Predict = np.array([Labs[x] for x in Predict])
+
+    Corr = np.sum(Predict == test_labels)
+    print(Corr / len(test_features))
+
 
     if not os.path.exists('result'):
         os.mkdir('result')
