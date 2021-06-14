@@ -24,6 +24,6 @@ if __name__ == '__main__':
 
     start_time = time.time()
     svm_cla = SVC(kernel='rbf', C=1)
-    svm_cla.fit(train_features, train_labels)
+    svm_cla.fit(train_features_u, train_labels_u)
     print('{} Used'.format(time.time() - start_time))
     print(svm_cla.score(test_features, test_labels))
