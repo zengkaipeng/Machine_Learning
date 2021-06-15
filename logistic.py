@@ -31,13 +31,13 @@ def train(
             Subx = train_features[Idx: Idx + batch_size]
             Y = train_labels[Idx: Idx + batch_size]
             grad = Grad(Subx, beta, Y)
-            
+
             vt = gam1 * vt + (1 - gam1) * grad
             Gt = gam2 * Gt + (1 - gam2) * (grad * grad)
             vth = vt / (1 - gam1 ** (ep + 1))
             Gth = Gt / (1 - gam2 ** (ep + 1))
             beta -= lr * (vth / np.sqrt(Gth + 1e-8))
-            
+
             # beta -= lr * grad
             loss += Loss(Subx, beta, Y)
 
@@ -66,6 +66,7 @@ if __name__ == '__main__':
     for i in range(10):
         new_labels = np.zeros(len(train_features))
         new_labels[train_labels == i] = 1
+        new_features = np.hstack([train_features, np.ones((train_len, 1))])
         print(np.sum(new_labels))
         beta = train(train_features, new_labels)
         Lab2beta[i] = beta
@@ -73,7 +74,8 @@ if __name__ == '__main__':
     Answer, Labs = [], []
 
     for k, v in Lab2beta.items():
-        Answer.append(sigmoid(np.dot(test_features, v)))
+        testf = np.hstack([test_features, np.ones((len(test_features), 1))])
+        Answer.append(sigmoid(np.dot(testf, v)))
         Labs.append(k)
 
     Answer = np.array(Answer)

@@ -34,6 +34,11 @@ def CalMu_Sigma(Array):
     return Mu, Gx
 
 
+def Gauss(x, Mu, Gx):
+    return 1 / (np.sqrt(2 * math.pi * Gx)) * \
+        np.exp(-(x - Mu) * (x - Mu) / (2 * Gx))
+
+
 if __name__ == '__main__':
     train_features = np.load('train_features.npy')
     train_labels = np.load('train_labels.npy')
@@ -55,18 +60,21 @@ if __name__ == '__main__':
     Lab2Info = {}
     for x in range(10):
         Xpos = train_features[train_labels == x]
-        Projection = np.dot(Xpos, Lab2beta[x])
-        Mu, Gx = CalMu_Sigma(Projection)
-        Lab2Info[x] = (Mu, Gx)
+        Xneg = train_features[train_labels != x]
+        Projection_pos = np.dot(Xpos, Lab2beta[x])
+        Projection_neg = np.dot(Xneg, Lab2beta[x])
+        Mupos, Gxpos = CalMu_Sigma(Projection_pos)
+        Muneg, Gxneg = CalMu_Sigma(Projection_neg)
+        Lab2Info[x] = (Mupos, Gxpos, Muneg, Gxneg)
 
     Probs, Labs = [], []
     for x in range(10):
         Projection = np.dot(test_features, Lab2beta[x])
-        Mu, Gx = Lab2Info[x]
-        sigma = np.sqrt(Gx)
-        Prob = 1 / (np.sqrt(2 * math.pi) * sigma) * np.exp(
-            - (Projection - Mu) * (Projection - Mu) / (2 * Gx)
-        )
+        Mupos, Gxpos, Muneg, Gxneg = Lab2Info[x]
+        ProbPos = Gauss(Projection, Mupos, Gxpos)
+        ProbNeg = Gauss(Projection, Muneg, Gxneg)
+        Prob = (ProbPos) / (ProbPos + ProbNeg)
+
         Probs.append(Prob)
         Labs.append(x)
 
