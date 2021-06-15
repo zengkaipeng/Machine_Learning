@@ -9,8 +9,8 @@ import numpy as np
 
 def Test(dataloader, model, device, totlen):
     Lossfun = torch.nn.CrossEntropyLoss()
-    Loss = torch.tensor(0.0)
-    Corr = torch.tensor(0)
+    Loss = torch.tensor(0.0).to(device)
+    Corr = torch.tensor(0).to(device)
     for Idx, (data, label) in enumerate(tqdm(dataloader)):
         data = data.to(device)
         label = label.to(device)
@@ -19,7 +19,7 @@ def Test(dataloader, model, device, totlen):
         Predict = torch.softmax(result, dim=1).argmax(axis=1)
         Corr += torch.sum(Predict == label)
 
-    return Loss.item(), Corr.item() / totlen
+    return Loss.item() / totlen, Corr.item() / totlen
 
 
 if __name__ == '__main__':
@@ -37,7 +37,8 @@ if __name__ == '__main__':
     Lossfun = torch.nn.CrossEntropyLoss()
     bs = 256
     init_lr = 1e-3
-    train_loader = DataLoader(train_set, batch_size=bs)
+    train_loader = DataLoader(train_set, batch_size=bs, shuffle=True)
+    test_loader = DataLoader(test_set, batch_size=bs, shuffle=True)
     optimizer = torch.optim.Adam(
         model.parameters(), lr=init_lr,
         betas=(0.9, 0.999), eps=1e-8
@@ -46,11 +47,13 @@ if __name__ == '__main__':
         optimizer, step_size=15, gamma=0.1
     )
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    for ep in range(50):
+    model.to(device)
+    for ep in range(20):
         torch.cuda.empty_cache()
-        Loss = torch.tensor(0.0)
-        Corr = torch.tensor(0)
+        Loss = torch.tensor(0.0).to(device)
+        Corr = torch.tensor(0).to(device)
         for Idx, (data, label) in enumerate(tqdm(train_loader)):
+            optimizer.zero_grad()
             data = data.to(device)
             label = label.to(device)
             result = model(data)
@@ -62,7 +65,12 @@ if __name__ == '__main__':
             optimizer.step()
             lr_scheduler.step()
 
+        model.eval()
+        loss, acc = Test(test_loader, model, device, testlen)
+        model.train()
+
         print("Epoch = {}, lr = {}\nTrainAcc = {} TrainLoss={}".format(
             epoch, lr_scheduler.get_last_lr(),
-            Corr.item() / trainlen, Loss.item()
+            Corr.item() / trainlen, Loss.item() / trainlen,
         ))
+        print('TestAcc = {}, TestLoss = {}'.format(acc, loss))
