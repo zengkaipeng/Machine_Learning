@@ -42,7 +42,7 @@ def train(
             loss += Loss(Subx, beta, Y)
 
         if verbose and (ep + 1) % 50 == 0:
-            print('Epoch = {} Loss = {}'.format(ep, loss))
+            print('Epoch = {} Loss = {}'.format(ep + 1, loss))
 
     return beta
 
