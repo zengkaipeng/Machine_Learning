@@ -63,7 +63,7 @@ if __name__ == '__main__':
             Losv.backward()
             Loss += Losv.item()
             optimizer.step()
-            lr_scheduler.step()
+        lr_scheduler.step()
 
         model.eval()
         loss, acc = Test(test_loader, model, device, testlen)
