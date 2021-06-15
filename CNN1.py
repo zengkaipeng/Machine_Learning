@@ -70,7 +70,7 @@ if __name__ == '__main__':
         model.train()
 
         print("Epoch = {}, lr = {}\nTrainAcc = {} TrainLoss={}".format(
-            epoch, lr_scheduler.get_last_lr(),
+            ep + 1, lr_scheduler.get_last_lr(),
             Corr.item() / trainlen, Loss.item() / trainlen,
         ))
         print('TestAcc = {}, TestLoss = {}'.format(acc, loss))
