@@ -14,23 +14,28 @@ def Loss(X, beta, y):
     )
 
 
-def Grad(X, beta, y):
-    return np.dot(X.T, sigmoid(np.dot(X, beta)) - y) + 2e-3 * beta
+def Grad(X, beta, y, Lambda):
+    Lasso = np.zeros_like(beta)
+    Lasso[beta > 0] = 1
+    Lasso[beta < 0] = -1
+    return np.dot(X.T, sigmoid(np.dot(X, beta)) - y) + Lambda * Lasso
 
 
 def train(
     train_features, train_labels, batch_size=256,
-    lr=1e-2, gam1=0.9, gam2=0.999, epoch=500, verbose=True
+    lr=1e-2, gam1=0.9, gam2=0.999, epoch=500,
+    Lambda=1e-2, verbose=True
 ):
     beta = np.zeros(len(train_features[0]))
     vt = np.zeros(len(train_features[0]))
     Gt = np.zeros(len(train_features[0]))
+    iLam = Lambda
     for ep in range(epoch):
         loss = 0
         for Idx in range(0, len(train_features), batch_size):
             Subx = train_features[Idx: Idx + batch_size]
             Y = train_labels[Idx: Idx + batch_size]
-            grad = Grad(Subx, beta, Y)
+            grad = Grad(Subx, beta, Y, iLam)
 
             vt = gam1 * vt + (1 - gam1) * grad
             Gt = gam2 * Gt + (1 - gam2) * (grad * grad)
@@ -43,6 +48,9 @@ def train(
 
         if verbose and (ep + 1) % 50 == 0:
             print('Epoch = {} Loss = {}'.format(ep + 1, loss))
+
+        if (ep + 1) % 100 == 0:
+            iLam /= 10
 
     return beta
 
