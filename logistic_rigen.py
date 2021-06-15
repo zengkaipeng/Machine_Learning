@@ -15,7 +15,7 @@ def Loss(X, beta, y):
 
 
 def Grad(X, beta, y):
-    return np.dot(X.T, sigmoid(np.dot(X, beta)) - y)
+    return np.dot(X.T, sigmoid(np.dot(X, beta)) - y) + 2 * beta
 
 
 def train(
