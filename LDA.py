@@ -1,3 +1,4 @@
+import json
 import math
 import numpy as np
 from tqdm import tqdm
@@ -76,7 +77,6 @@ if __name__ == '__main__':
     Corr = np.sum(Predict == test_labels)
     print(Corr / len(test_features))
 
-
     if not os.path.exists('result'):
         os.mkdir('result')
 
@@ -85,3 +85,6 @@ if __name__ == '__main__':
 
     with open('result/LDA/betas.pkl', 'wb') as Fout:
         pickle.dump(Lab2beta, Fout)
+
+    with open('result/LDA/Gauss_Para.json', 'w') as Fout:
+        json.dump(Lab2Info, Fout, indent=4)
