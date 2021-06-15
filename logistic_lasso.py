@@ -95,8 +95,8 @@ if __name__ == '__main__':
     if not os.path.exists('result'):
         os.mkdir('result')
 
-    if not os.path.exists('result/logistic'):
-        os.mkdir('result/logistic')
+    if not os.path.exists('result/logistic_lasso'):
+        os.mkdir('result/logistic_lasso')
 
-    with open('result/logistic/betas.pkl', 'wb') as Fout:
+    with open('result/logistic_lasso/betas.pkl', 'wb') as Fout:
         pickle.dump(Lab2beta, Fout)
