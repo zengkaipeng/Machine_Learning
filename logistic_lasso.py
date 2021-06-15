@@ -1,6 +1,7 @@
 import pickle
 import os
 import numpy as np
+from utils import Dshuffle
 
 
 def sigmoid(x):
@@ -51,6 +52,9 @@ def train(
 
         if (ep + 1) % 100 == 0:
             iLam /= 10
+        train_features, train_labels = Dshuffle(
+            train_features, train_labels, trainlen
+        )
 
     return beta
 

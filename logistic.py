@@ -1,6 +1,7 @@
 import pickle
 import os
 import numpy as np
+from utils import Dshuffle
 
 
 def sigmoid(x):
@@ -25,6 +26,7 @@ def train(
     beta = np.zeros(len(train_features[0]))
     vt = np.zeros(len(train_features[0]))
     Gt = np.zeros(len(train_features[0]))
+    trainlen = len(train_features)
     for ep in range(epoch):
         loss = 0
         for Idx in range(0, len(train_features), batch_size):
@@ -44,6 +46,9 @@ def train(
         if verbose and (ep + 1) % 50 == 0:
             print('Epoch = {} Loss = {}'.format(ep + 1, loss))
 
+        train_features, train_labels = Dshuffle(
+            train_features, train_labels, trainlen
+        )
     return beta
 
 

@@ -13,3 +13,9 @@ def Random_Sample(train_features, train_labels, num=20000):
         labels.append(train_labels[Indexes[x]])
 
     return np.array(features), np.array(labels)
+
+
+def Dshuffle(features, labels, lens):
+    Index = list(range(lens))
+    shuffle(Index)
+    return features[Index], labels[Index]
