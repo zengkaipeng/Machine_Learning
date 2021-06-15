@@ -68,7 +68,7 @@ if __name__ == '__main__':
         new_labels[train_labels == i] = 1
         new_features = np.hstack([train_features, np.ones((train_len, 1))])
         print(np.sum(new_labels))
-        beta = train(train_features, new_labels)
+        beta = train(new_features, new_labels)
         Lab2beta[i] = beta
 
     Answer, Labs = [], []
