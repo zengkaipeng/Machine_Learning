@@ -4,3 +4,4 @@ __pycache__/*
 see_data.py
 CNN_Data/*
 *pkl
+kernels/*
