@@ -8,11 +8,11 @@ def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
 
-def Loss(X, beta, y):
+def Loss(X, beta, y, Lambda):
     return np.sum(
         -y * np.log(sigmoid(np.dot(X, beta))) -
         (1 - y) * np.log(1 - sigmoid(np.dot(X, beta)))
-    )
+    ) + Lambda * np.sum(np.fabs(beta))
 
 
 def Grad(X, beta, y, Lambda):
@@ -46,7 +46,7 @@ def train(
             beta -= lr * (vth / np.sqrt(Gth + 1e-8))
 
             # beta -= lr * grad
-            loss += Loss(Subx, beta, Y)
+            loss += Loss(Subx, beta, Y, iLam)
 
         if verbose and (ep + 1) % 50 == 0:
             print('Epoch = {} Loss = {}'.format(ep + 1, loss))

@@ -12,7 +12,7 @@ def Loss(X, beta, y):
     return np.sum(
         -y * np.log(sigmoid(np.dot(X, beta))) -
         (1 - y) * np.log(1 - sigmoid(np.dot(X, beta)))
-    )
+    ) + 1e-3 * beta.dot(beta)
 
 
 def Grad(X, beta, y):

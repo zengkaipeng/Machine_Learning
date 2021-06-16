@@ -21,7 +21,7 @@ def Ploy(Xi, Xjs, d):
 
 
 def Kernel_Matric(Xis, ker='rbf', from_file=False, fdir=''):
-    if from_file:
+    if from_file or not os.path.exists(fdir):
         kernel = np.load(fdir)
         return kernel
     else:
@@ -66,5 +66,6 @@ if __name__ == '__main__':
     test_features = np.load('test_features.npy')
     test_labels = np.load('test_labels.npy')
 
-    K = Kernel_Matric(train_features, ker='poly')
+    K = Kernel_Matric(train_features, ker='poly', from_file=True)
+    
 

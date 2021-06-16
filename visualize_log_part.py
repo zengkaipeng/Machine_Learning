@@ -32,7 +32,7 @@ if __name__ == '__main__':
     train_features = np.concatenate([train_features, extra_features])
     train_labels = np.concatenate([train_labels, extra_labels])
     train_len = len(train_features)
-    Kpart = 8
+    Kpart = 7
 
     if Kpart < 9:
         with open(f'result/logistic_kpart/betas_{Kpart}.pkl', 'rb') as Fin:
