@@ -37,17 +37,17 @@ class ToyNet1(torch.nn.Module):
         )
         self.bn3 = torch.nn.BatchNorm2d(128 * 6)
         self.conv6 = torch.nn.Conv2d(
-            128 * 6, 128 * 6, kernel_size=3,
+            128 * 6, 128 * 12, kernel_size=3,
             padding=1, bias=False, stride=2
         )
-        self.bn4 = torch.nn.BatchNorm2d(128 * 6)
+        self.bn4 = torch.nn.BatchNorm2d(128 * 12)
         self.conv7 = torch.nn.Conv2d(
-            128 * 6, 128 * 6, kernel_size=3,
+            128 * 12, 128 * 12, kernel_size=3,
             padding=1, bias=False, stride=2
         )
-        self.bn5 = torch.nn.BatchNorm2d(128 * 6)
+        self.bn5 = torch.nn.BatchNorm2d(128 * 12)
         self.avgpool = torch.nn.AvgPool2d(kernel_size=4)
-        self.fc = torch.nn.Linear(128 * 6, num_class)
+        self.fc = torch.nn.Linear(128 * 12, num_class)
 
     def forward(self, x):
         out = funcs.relu(self.bn1(self.conv1(x)))
