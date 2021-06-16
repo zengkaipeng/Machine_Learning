@@ -30,6 +30,7 @@ def train(
     beta = np.zeros(len(train_features[0]))
     vt = np.zeros(len(train_features[0]))
     Gt = np.zeros(len(train_features[0]))
+    trainlen = len(train_features)
     iLam = Lambda
     for ep in range(epoch):
         loss = 0

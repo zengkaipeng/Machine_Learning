@@ -2,6 +2,7 @@ import pickle
 import os
 import numpy as np
 from utils import Dshuffle
+from random import shuffle
 
 
 def sigmoid(x):
@@ -16,7 +17,7 @@ def Loss(X, beta, y):
 
 
 def Grad(X, beta, y):
-    return np.dot(X.T, sigmoid(np.dot(X, beta)) - y) + 2e-3 * beta
+    return np.dot(X.T, sigmoid(np.dot(X, beta)) - y)
 
 
 def train(
@@ -45,11 +46,35 @@ def train(
 
         if verbose and (ep + 1) % 50 == 0:
             print('Epoch = {} Loss = {}'.format(ep + 1, loss))
+
         train_features, train_labels = Dshuffle(
             train_features, train_labels, trainlen
         )
-
     return beta
+
+
+def Rebuild_train_set(train_features, train_labels, K, P):
+    new_features, new_labels = [], []
+    Idx = list(range(len(train_features)))
+    shuffle(Idx)
+    for i, fea in enumerate(train_features):
+        if train_labels[i] == P:
+            new_features.append(fea)
+            new_labels.append(1)
+
+    Up = K * len(new_features)
+    Cnt = 0
+    for i in Idx:
+        if train_labels[i] != P and Cnt < Up:
+            new_features.append(train_features[i])
+            new_labels.append(0)
+            Cnt += 1
+
+    Idx = list(range(len(new_features)))
+    shuffle(Idx)
+    new_features = np.array(new_features)
+    new_labels = np.array(new_labels)
+    return new_features[Idx], new_labels[Idx]
 
 
 if __name__ == '__main__':
@@ -67,12 +92,17 @@ if __name__ == '__main__':
     train_len = len(train_features)
 
     Lab2beta = {}
+    Kpart = 2
 
     for i in range(10):
-        new_labels = np.zeros(len(train_features))
-        new_labels[train_labels == i] = 1
-        new_features = np.hstack([train_features, np.ones((train_len, 1))])
-        print(np.sum(new_labels))
+        new_features, new_labels = Rebuild_train_set(
+            train_features, train_labels, Kpart, i
+        )
+        new_features = np.hstack([
+            new_features, np.ones((len(new_features), 1))
+        ])
+        Posnum = np.sum(new_labels)
+        print(Posnum, len(new_labels) - Posnum)
         beta = train(new_features, new_labels)
         Lab2beta[i] = beta
 
@@ -92,8 +122,8 @@ if __name__ == '__main__':
     if not os.path.exists('result'):
         os.mkdir('result')
 
-    if not os.path.exists('result/logistic_ridge'):
-        os.mkdir('result/logistic_ridge')
+    if not os.path.exists('result/logistic_kpart'):
+        os.mkdir('result/logistic_kpart')
 
-    with open('result/logistic_ridge/betas.pkl', 'wb') as Fout:
+    with open(f'result/logistic_kpart/betas_{Kpart}.pkl', 'wb') as Fout:
         pickle.dump(Lab2beta, Fout)
