@@ -92,7 +92,7 @@ if __name__ == '__main__':
     train_len = len(train_features)
 
     Lab2beta = {}
-    Kpart = 3
+    Kpart = 8
 
     for i in range(10):
         new_features, new_labels = Rebuild_train_set(
