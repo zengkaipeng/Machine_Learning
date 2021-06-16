@@ -40,7 +40,7 @@ def Kernel_Matric(
         if ker == 'cos':
             if Norms is None:
                 Norms = (Xis * Xis).sum(axis=1).flatten()
-            Dx = [Cons(x, Xis) for x in tqdm(Xis)]
+            Dx = [Cons(x, Xis, Norms) for x in tqdm(Xis)]
             Dx = np.array(Dx)
             np.save('kernels/cos.npy', Dx)
             return Dx
@@ -65,8 +65,8 @@ def Loss(K, c, y):
 
 
 def train(
-    K, train_labels, verbose=True,
-    lr=1e-4, gam1=0.9, gam2=0.999, epoch=500
+    K, train_labels, verbose=True, step=False,
+    lr=1e-2, gam1=0.9, gam2=0.999, epoch=500
 ):
     c = np.zeros(len(K))
     vt = np.zeros_like(c)
@@ -84,7 +84,8 @@ def train(
             print('Epoch = {} Loss = {}'.format(
                 ep + 1, Loss(K, c, train_labels)
             ))
-        if (ep + 1) % 150 == 0:
+
+        if (ep + 1) % 150 == 0 and step:
             lr /= 10
     return c
 
@@ -97,7 +98,7 @@ def GetKlines(
     Answer = []
     for x in lx:
         if ker == 'rbf':
-            kline = Rbf(x, train_data, simga)
+            kline = Rbf(x, train_data, simga=sigma)
         if ker == 'poly':
             kline = Ploy(x, train_data, d)
         if ker == 'cos':
@@ -112,7 +113,7 @@ if __name__ == '__main__':
     test_features = np.load('test_features.npy')
     test_labels = np.load('test_labels.npy')
 
-    kern = 'rbf'
+    kern = 'cos'
     K = Kernel_Matric(
         train_features, ker=kern,
         from_file=True, fdir=f'kernels/{kern}.npy'
@@ -121,13 +122,14 @@ if __name__ == '__main__':
     print(K.max(), K.min())
 
     Norms = np.sqrt((train_features * train_features).sum(axis=1)).flatten()
+    print(Norms.max(), Norms.min())
 
     Lab2C = {}
     for i in range(10):
         print(f"[INFO] {i}")
         newlabels = np.zeros_like(train_labels)
         newlabels[train_labels == i] = 1
-        C = train(K, newlabels, epoch=500)
+        C = train(K, newlabels, epoch=500, step=False)
         Lab2C[i] = C
 
     Klines = GetKlines(test_features, train_features, ker=kern, Norms=Norms)
