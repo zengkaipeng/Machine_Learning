@@ -6,3 +6,5 @@ CNN_Data/*
 *pkl
 kernels/*
 result/SVM/*
+result/CNN1/*
+*tov
