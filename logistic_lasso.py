@@ -53,6 +53,9 @@ def train(
 
         if (ep + 1) % 150 == 0:
             iLam /= 10
+            
+        if (ep + 1) % 200 == 0:
+            lr = lr / 10
         train_features, train_labels = Dshuffle(
             train_features, train_labels, trainlen
         )
