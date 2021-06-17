@@ -66,7 +66,7 @@ def Loss(K, c, y):
 
 def train(
     K, train_labels, verbose=True, step=False,
-    lr=1e-2, gam1=0.9, gam2=0.999, epoch=500
+    lr=1e-1, gam1=0.9, gam2=0.999, epoch=500
 ):
     c = np.zeros(len(K))
     vt = np.zeros_like(c)
@@ -85,7 +85,7 @@ def train(
                 ep + 1, Loss(K, c, train_labels)
             ))
 
-        if (ep + 1) % 150 == 0 and step:
+        if step != 0 and (ep + 1) % step == 0:
             lr /= 10
     return c
 
@@ -129,7 +129,7 @@ if __name__ == '__main__':
         print(f"[INFO] {i}")
         newlabels = np.zeros_like(train_labels)
         newlabels[train_labels == i] = 1
-        C = train(K, newlabels, epoch=500, step=False)
+        C = train(K, newlabels, epoch=500, step=0)
         Lab2C[i] = C
 
     Klines = GetKlines(test_features, train_features, ker=kern, Norms=Norms)

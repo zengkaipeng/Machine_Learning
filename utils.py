@@ -19,3 +19,9 @@ def Dshuffle(features, labels, lens):
     Index = list(range(lens))
     shuffle(Index)
     return features[Index], labels[Index]
+
+
+def CalMu_Sigma(Array):
+    Mu = np.mean(Array)
+    Gx = np.mean((Array - Mu) ** 2)
+    return Mu, Gx

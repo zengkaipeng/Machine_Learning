@@ -68,12 +68,14 @@ if __name__ == '__main__':
         Lab2Info[x] = (Mupos, Gxpos, Muneg, Gxneg)
 
     Probs, Labs = [], []
+    train_len = len(train_features)
     for x in range(10):
         Projection = np.dot(test_features, Lab2beta[x])
         Mupos, Gxpos, Muneg, Gxneg = Lab2Info[x]
         ProbPos = Gauss(Projection, Mupos, Gxpos)
         ProbNeg = Gauss(Projection, Muneg, Gxneg)
-        Prob = (ProbPos) / (ProbPos + ProbNeg)
+        Py1 = np.sum(train_labels == x) / train_len
+        Prob = (ProbPos) / (ProbPos * Py1 + ProbNeg * (1 - Py1))
 
         Probs.append(Prob)
         Labs.append(x)
