@@ -5,3 +5,4 @@ see_data.py
 CNN_Data/*
 *pkl
 kernels/*
+result/SVM/*

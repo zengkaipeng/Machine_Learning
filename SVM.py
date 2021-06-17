@@ -14,10 +14,10 @@ if __name__ == '__main__':
 
     print('load Done')
 
-    kernel = 'sigmoid'
+    kernel = 'poly'
 
     start_time = time.time()
-    svm_cla = SVC(kernel=kernel, C=0.1, degree=2)
+    svm_cla = SVC(kernel=kernel, C=1, degree=2)
     svm_cla.fit(train_features_u, train_labels_u)
     print('{} Used'.format(time.time() - start_time))
     print(svm_cla.score(test_features, test_labels))
