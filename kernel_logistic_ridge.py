@@ -7,7 +7,7 @@ import json
 
 def Rbf(Xi, Xjs, simga):
     Gap = Xjs - Xi
-    dists = (Gap * Gap).sum(axis=1).flatten()
+    dists = (Gap * Gap).sum(axis=1)
     Line = np.exp(-dists / (2 * simga ** 2))
     return Line
 
@@ -66,7 +66,7 @@ def Loss(K, c, y):
 
 def train(
     K, train_labels, verbose=True, step=False,
-    lr=1e-1, gam1=0.9, gam2=0.999, epoch=500
+    lr=1e-2, gam1=0.9, gam2=0.999, epoch=500
 ):
     c = np.zeros(len(K))
     vt = np.zeros_like(c)
@@ -113,7 +113,7 @@ if __name__ == '__main__':
     test_features = np.load('test_features.npy')
     test_labels = np.load('test_labels.npy')
 
-    kern = 'cos'
+    kern = 'rbf'
     K = Kernel_Matric(
         train_features, ker=kern,
         from_file=True, fdir=f'kernels/{kern}.npy'
